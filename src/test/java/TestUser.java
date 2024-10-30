@@ -39,7 +39,7 @@ public class TestUser{
         .extract()
         ;
         // extração
-        String token = resposta.jsonPath().getString("message").substring(16);
+        String token = resposta.jsonPath().getString("message").substring(23);
         System.out.println("Conteúdo do Token:" + token);
 
     }
