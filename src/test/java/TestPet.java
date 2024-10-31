@@ -8,6 +8,10 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvFileSource;
+
+import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -15,6 +19,7 @@ import java.nio.file.Paths;
 
 import static io.restassured.RestAssured.config;
 import static io.restassured.RestAssured.given; // função given
+import static io.restassured.RestAssured.unregisterParser;
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.*;          // classe de verificadores do Hamcrest
 
@@ -41,8 +46,6 @@ public class TestPet {
         return new String(Files.readAllBytes(Paths.get(arquivoJson)));
 
     }
-
-   
 
     @Test @Order(1)
     public void testPostPet() throws IOException{
@@ -73,11 +76,12 @@ public class TestPet {
     public void testGetPet(){
         // Configura
         // Entradas e saídas definidas no nível da classe
-            
+        
         given()
             .contentType(ct)
             .log().all()
             // quando é get ou delete não tem body
+            .header("", "api_key: " + TestUser.testLogin())
         // Executa
         .when()
         .get(uriPet + "/" + petId)  // montar o endpoint da URI/<petId>
@@ -139,7 +143,50 @@ public class TestPet {
         ;
     }
 
+    // Data Driven Test (DDT) / Teste direcionado por dados / Teste com massa
+    // Teste com json parametrizado
 
+    @ParameterizedTest @Order(5)
+    @CsvFileSource(resources = "/csv/petMassa.csv", numLinesToSkip = 1, delimiter =',')
+    public void testPostPetDDT(
+        int petId,
+        String petName,
+        int catId,
+        String catName,
+        String status1,
+        String status2
+        
+    ) //fim dos parametros
+    { // inicio do código do método testPotPetDDT
+
+        //Criar a classe pet para receber os dados dos csv
+        Pet pet = new Pet();  // Instacia a classe User
+
+        pet.petId = petId;
+        pet.petName = petName;
+        pet.catId = catId;
+        pet.catName = catName;
+        pet.status = status1;  // status inicial usado no Post = "available"
+
+        // Criar um json para o body a ser enviado a partir da classe Pet e do CSV
+        Gson gson = new Gson();  // Instancia a classe Gson como o objeto gson
+        String jsonBody = gson.toJson(pet);
+
+        given()
+            .contentType(ct)
+            .log().all()
+            .body(jsonBody)
+        .when()
+            .post(uriPet)
+        .then()
+            .log().all()
+            .statusCode(200)
+            .body("id", is("petId"))
+            .body("name", is(petName))
+            .body("category.id", is(catName))
+            .body("status", is("status1"))
+    ;
+    }
 
     }
 

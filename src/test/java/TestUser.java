@@ -9,11 +9,14 @@ import io.restassured.matcher.ResponseAwareMatcher;
 import io.restassured.response.Response;
 
 public class TestUser{
-    String ct = "application/json";
-    String uriUser = "https://petstore.swagger.io/v2/user";
+    static String ct = "application/json";
+    static String uriUser = "https://petstore.swagger.io/v2/user";
+    static String token;
+    //colocar mais duas variaveis static (ver no git)
+
 
 @Test 
-    public void testLogin(){
+    public static String testLogin(){
         //Configura
         String username = "arya";
         String password = "123456";
@@ -41,6 +44,7 @@ public class TestUser{
         // extração
         String token = resposta.jsonPath().getString("message").substring(23);
         System.out.println("Conteúdo do Token:" + token);
+        return token;
 
     }
 
