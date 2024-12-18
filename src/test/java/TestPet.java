@@ -157,15 +157,26 @@ public class TestPet {
         String status2
         
     ) //fim dos parametros
-    { // inicio do código do método testPotPetDDT
+    { // inicio do código do método testPostPetDDT
 
         //Criar a classe pet para receber os dados dos csv
         Pet pet = new Pet();  // Instacia a classe User
+        Pet.Category category = pet.new Category();
+        Pet.Tag[] tags = new Pet.Tag[2]; // instancia a subclasse Tag
+        tags[0] = pet.new Tag();
+        tags[1] = pet.new Tag();
+        pet.id = petId;
+        pet.category = category; // associar a pet.category com a subclasse category
 
-        pet.petId = petId;
-        pet.petName = petName;
-        pet.catId = catId;
-        pet.catName = catName;
+        pet.category.id = catId;
+        pet.name = petName;
+        pet.category.name = catName;
+        // pet.photoUrls -- não precisa ser incluído porque será vazio
+        pet.tags = tags;
+        pet.tags[0].id = 9;
+        pet.tags[0].name = "vacinado";
+        pet.tags[1].id = 8;
+        pet.tags[1].name = "vermifugado";
         pet.status = status1;  // status inicial usado no Post = "available"
 
         // Criar um json para o body a ser enviado a partir da classe Pet e do CSV
@@ -181,10 +192,11 @@ public class TestPet {
         .then()
             .log().all()
             .statusCode(200)
-            .body("id", is("petId"))
+            .body("id", is(petId))
             .body("name", is(petName))
-            .body("category.id", is(catName))
-            .body("status", is("status1"))
+            .body("category.id", is(catId))
+            .body("category.name", is(catName))
+            .body("status", is(status1))
     ;
     }
 
