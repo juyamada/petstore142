@@ -84,7 +84,7 @@ public class TestPet {
             .header("", "api_key: " + TestUser.testLogin())
         // Executa
         .when()
-        .get(uriPet + "/" + petId)  // montar o endpoint da URI/<petId>
+            .get(uriPet + "/" + petId)  // montar o endpoint da URI/<petId>
         // Valida
         .then()
             .log().all()
